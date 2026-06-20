@@ -17,16 +17,16 @@ def get_tfl_data():
 
 
 def save_tfl_data(data):
-    # Create the output directory folder if it doesn't exist yet
+    # create the output directory folder if it doesn't exist yet
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Build a filename using the current date and time so each file is unique
+    # build a filename using the current date and time so each file is unique
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"tfl_lines_{timestamp}.json"
     # create full file path e.g. "data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json"
     output_path = os.path.join(OUTPUT_DIR, filename)
 
-    # Open the file for writing and save the data as formatted JSON
+    # open the file for writing and save the data as formatted JSON
     with open(output_path, "w") as f:
         json.dump(data, f, indent=2)
 
