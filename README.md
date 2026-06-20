@@ -1,79 +1,78 @@
 # TfL Analytics Mart
 
-An end-to-end data pipeline that ingests live Transport for London data, stores it in Azure Blob Storage, models it in BigQuery with dbt, and orchestrates everything via GitHub Actions.
+An end-to-end data pipeline built on public TfL data.
+
+**Current status: local ingestion only.** The pipeline fetches live tube line statuses from the TfL API and saves them as JSON files locally. Azure, BigQuery, and dbt layers are planned but not yet built.
 
 ---
 
-## Architecture
+## What it does (right now)
+
+`fetch_tfl.py` calls the [TfL Unified API](https://api.tfl.gov.uk) endpoint for London Underground line statuses, then saves the response as a timestamped JSON file:
 
 ```
-TfL Unified API
-      │
-      ▼
-Python ingestion script
-      │  fetches live tube line status
-      ▼
-Azure Blob Storage
-      │  raw JSON, partitioned by date
-      ▼
-BigQuery (raw dataset)
-      │  loaded from Blob via external table or load job
-      ▼
-dbt (transform layer)
-      │  staging → intermediate → marts
-      ▼
-Analytics-ready tables
+data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
 ```
 
----
-
-## Stack
-
-| Layer | Tool |
-|---|---|
-| Ingestion | Python + `requests` |
-| Raw storage | Azure Blob Storage |
-| Data warehouse | Google BigQuery |
-| Transformation | dbt Core |
-| Orchestration | GitHub Actions |
+Each run creates a new file. The `data/raw/tfl/` folder is gitignored so raw files are never committed.
 
 ---
 
-## Data source
+## Setup
 
-[TfL Unified API](https://api.tfl.gov.uk) — public REST API providing real-time and static data across all TfL modes. No API key required for up to 50 requests per minute.
-
-Endpoint used: `GET /Line/Mode/tube/Status`
-
-Returns the current service status for every London Underground line (e.g. Good Service, Minor Delays, Part Suspended).
-
----
-
-## Project structure
-
-```
-fetch_tfl.py   # ingestion script — calls TfL API, prints line statuses
-README.md
-```
-
-> This project is being built incrementally. The structure will expand as each layer is added.
-
----
-
-## Running the ingestion script
-
-**Requirements:** Python 3.8+
+Requires Python 3.8+.
 
 ```bash
-pip install requests
+pip install -r requirements.txt
+```
+
+---
+
+## Run
+
+```bash
 python fetch_tfl.py
 ```
 
 **Example output:**
 
 ```
-Bakerloo: Good Service
-Central: Good Service
-Circle: Minor Delays
-...
+Saved 11 lines to data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
 ```
+
+---
+
+## Planned architecture
+
+The following layers are not yet built.
+
+```
+TfL Unified API
+      │
+      ▼
+Python ingestion script        ← built
+      │
+      ▼
+Azure Blob Storage             ← planned
+      │
+      ▼
+BigQuery                       ← planned
+      │
+      ▼
+dbt (staging → marts)          ← planned
+      │
+      ▼
+GitHub Actions (orchestration) ← planned
+```
+
+---
+
+## Stack
+
+| Layer | Tool | Status |
+|---|---|---|
+| Ingestion | Python + `requests` | Done |
+| Raw storage | Azure Blob Storage | Planned |
+| Data warehouse | Google BigQuery | Planned |
+| Transformation | dbt Core | Planned |
+| Orchestration | GitHub Actions | Planned |
