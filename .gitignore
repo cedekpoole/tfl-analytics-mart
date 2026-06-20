@@ -1,0 +1,12 @@
+
+# Ignore all JSON files downloaded from the TfL API.
+data/raw/tfl/*.json
+
+__pycache__/
+*.pyc
+
+.env
+
+.venv/
+venv/
+env/
