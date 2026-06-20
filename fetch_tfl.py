@@ -3,8 +3,8 @@ import os
 import requests
 from datetime import datetime
 
-# The TfL API endpoint for all London Underground tube lines
-url = "https://api.tfl.gov.uk/Line/Mode/tube"
+# The TfL API endpoint for London Underground tube line statuses (Good Service, Minor Delays, etc.)
+url = "https://api.tfl.gov.uk/Line/Mode/tube/Status"
 
 # Make a GET request to the API and wait up to 30 seconds for a response
 response = requests.get(url, timeout=30)
@@ -12,7 +12,7 @@ response = requests.get(url, timeout=30)
 # If the API returned an error (e.g. 404, 500), this will raise an exception and stop the script
 response.raise_for_status()
 
-# Convert the raw API response into a Python dictionary
+# Convert the raw API response
 data = response.json()
 
 # Build a filename using the current date and time so each file is unique
