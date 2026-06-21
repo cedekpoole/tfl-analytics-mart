@@ -8,7 +8,7 @@ def test_save_tfl_data(tmp_path):
     FAKE_DATA = [
         {
             "name": "Waterloo & City",
-            "lineStatuses": {"StatusSeverityUpdate": "Minor Delays"},
+            "lineStatuses": [{"StatusSeverityDescription": "Minor Delays"}],
         }
     ]
     # create temp file path

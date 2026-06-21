@@ -2,7 +2,7 @@
 
 An end-to-end data pipeline built on public TfL data.
 
-**Current status: local ingestion only.** The pipeline fetches live tube line statuses from the TfL API and saves them as JSON files locally. Azure, BigQuery, and dbt layers are planned but not yet built.
+**Current status: local ingestion only.** The project currently fetches live tube line statuses from the TfL API, saves them as JSON files locally, and includes one simple test for the local JSON-saving function. Azure, BigQuery, and dbt layers are planned but not yet built.
 
 ---
 
@@ -15,6 +15,8 @@ data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
 ```
 
 Each run creates a new file. The `data/raw/tfl/` folder is gitignored so raw files are never committed.
+
+The current test checks that the JSON-saving function writes data to a file correctly. It uses fake data and does not call the real TfL API.
 
 ---
 
@@ -39,6 +41,18 @@ python fetch_tfl.py
 ```
 Saved 11 lines to data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
 ```
+
+---
+
+## Tests
+
+Run the current test suite with:
+
+```bash
+python -m pytest tests/ -v
+```
+
+The test in `tests/test_fetch_tfl.py` checks that `save_tfl_data()` can write JSON data to a temporary file and read it back successfully.
 
 ---
 
@@ -72,6 +86,7 @@ GitHub Actions (orchestration) ← planned
 | Layer | Tool | Status |
 |---|---|---|
 | Ingestion | Python + `requests` | Done |
+| Testing | pytest | Started |
 | Raw storage | Azure Blob Storage | Planned |
 | Data warehouse | Google BigQuery | Planned |
 | Transformation | dbt Core | Planned |
