@@ -8,13 +8,13 @@ An end-to-end data pipeline built on public TfL data.
 
 ## What it does (right now)
 
-`fetch_tfl.py` calls the [TfL Unified API](https://api.tfl.gov.uk) endpoint for London Underground line statuses, then saves the response as a timestamped JSON file:
+`fetch_tfl.py` calls the [TfL Unified API](https://api.tfl.gov.uk) endpoint for London Underground line statuses. It prints each tube line's current status to the terminal, then saves the full API response as a timestamped JSON file:
 
 ```
 data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
 ```
 
-Each run creates a new file. The `data/raw/tfl/` folder is gitignored so raw files are never committed.
+Each run creates a new file. The `data/raw/tfl/` folder is gitignored so raw JSON files are not committed.
 
 The current test checks that the JSON-saving function writes data to a file correctly. It uses fake data and does not call the real TfL API.
 
@@ -39,6 +39,9 @@ python fetch_tfl.py
 **Example output:**
 
 ```
+Bakerloo : Good Service
+Central : Good Service
+Northern : Minor Delays
 Saved 11 lines to data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
 ```
 
