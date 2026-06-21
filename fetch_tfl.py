@@ -33,8 +33,18 @@ def save_tfl_data(data, output_dir=OUTPUT_DIR):
     return output_path
 
 
+def print_line_statuses(data):
+    # check the shape of the tfl data
+    # print status to terminal
+    for line in data:
+        name = line["name"]
+        status = line["lineStatuses"][0]["statusSeverityDescription"]
+        print(f"{name} : {status}")
+
+
 def main():
     data = get_tfl_data()
+    print_line_statuses(data)
     output_path = save_tfl_data(data)
     print(f"Saved {len(data)} lines to {output_path}")
 
