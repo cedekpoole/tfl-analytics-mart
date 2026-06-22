@@ -2,6 +2,7 @@ import json
 import os
 import requests
 from datetime import datetime, timezone
+import argparse
 
 # the TfL API endpoint for London Underground tube line statuses
 URL = "https://api.tfl.gov.uk/Line/Mode/tube/Status"
@@ -16,6 +17,7 @@ def get_tfl_data():
     return response.json()
 
 
+# add metadata to the saved JSON file
 def build_output_payload(data):
     utc_fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -42,19 +44,30 @@ def save_tfl_payload(data, output_dir=OUTPUT_DIR):
 
 
 def print_line_statuses(data):
-    # check the shape of the tfl data
-    # print status to terminal
+    # always check the shape of the tfl data first
+    # function prints status to terminal
     for line in data:
         name = line["name"]
         status = line["lineStatuses"][0]["statusSeverityDescription"]
         print(f"{name} : {status}")
 
 
+# allow users to pick output folder path if needed
+def parse_args():
+    parser = argparse.ArgumentParser(description="Fetch TfL tube line status data")
+    parser.add_argument(
+        "--output-dir", default=OUTPUT_DIR, help="Folder where JSON file will be saved"
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
+
     try:
         data = get_tfl_data()
         print_line_statuses(data)
-        output_path = save_tfl_payload(data)
+        output_path = save_tfl_payload(data, output_dir=args.output_dir)
         print(f"Saved {len(data)} lines to {output_path}")
     except requests.exceptions.RequestException as error:
         print(f"Error fetching TfL data: {error}")
