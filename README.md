@@ -48,6 +48,12 @@ pip install -r requirements.txt
 python fetch_tfl.py
 ```
 
+By default, files are saved under `data/raw/tfl/`. You can choose a different output folder with:
+
+```bash
+python fetch_tfl.py --output-dir data/raw/tfl
+```
+
 **Example output:**
 
 ```
