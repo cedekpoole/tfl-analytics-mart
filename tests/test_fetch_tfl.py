@@ -19,7 +19,9 @@ def test_save_tfl_data(tmp_path):
     with open(saved_file_path) as file:
         saved_data = json.load(file)
 
-    assert FAKE_DATA == saved_data
+    assert FAKE_DATA == saved_data["data"]
+    assert saved_data["source_url"] == "https://api.tfl.gov.uk/Line/Mode/tube/Status"
+    assert "utc_fetched_at" in saved_data
 
 
 # capsys and tmp_path come from pytest itself (as fixtures)

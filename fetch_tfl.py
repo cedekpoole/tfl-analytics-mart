@@ -16,6 +16,12 @@ def get_tfl_data():
     return response.json()
 
 
+def build_output_payload(data):
+    utc_fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
+
+    return {"utc_fetched_at": utc_fetched_at, "source_url": URL, "data": data}
+
+
 def save_tfl_data(data, output_dir=OUTPUT_DIR):
     # create the output directory folder if it doesn't exist yet
     os.makedirs(output_dir, exist_ok=True)
@@ -26,9 +32,11 @@ def save_tfl_data(data, output_dir=OUTPUT_DIR):
     # create full file path e.g. "data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json"
     output_path = os.path.join(output_dir, filename)
 
+    payload = build_output_payload(data)
+
     # open the file for writing and save the data as formatted JSON
     with open(output_path, "w") as f:
-        json.dump(data, f, indent=2)
+        json.dump(payload, f, indent=2)
 
     return output_path
 

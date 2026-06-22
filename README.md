@@ -2,13 +2,13 @@
 
 An end-to-end data pipeline built on public TfL data.
 
-**Current status: local ingestion only.** The project currently fetches live tube line statuses from the TfL API, saves them as JSON files locally, and includes one simple test for the local JSON-saving function. Azure, BigQuery, and dbt layers are planned but not yet built.
+**Current status: local ingestion only.** The project currently fetches live tube line statuses from the TfL API, prints a readable status summary, saves the response locally with basic metadata, and includes simple pytest coverage for the local functions. Azure, BigQuery, and dbt layers are planned but not yet built.
 
 ---
 
 ## What it does (right now)
 
-`fetch_tfl.py` calls the [TfL Unified API](https://api.tfl.gov.uk) endpoint for London Underground line statuses. It prints each tube line's current status to the terminal, then saves the full API response as a timestamped JSON file:
+`fetch_tfl.py` calls the [TfL Unified API](https://api.tfl.gov.uk) endpoint for London Underground line statuses. It prints each tube line's current status to the terminal, then saves a timestamped JSON file locally:
 
 ```
 data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
@@ -16,7 +16,19 @@ data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
 
 Each run creates a new file. The `data/raw/tfl/` folder is gitignored so raw JSON files are not committed.
 
-The current test checks that the JSON-saving function writes data to a file correctly. It uses fake data and does not call the real TfL API.
+The saved JSON file contains:
+
+```json
+{
+  "utc_fetched_at": "2026-06-20_14-30-00",
+  "source_url": "https://api.tfl.gov.uk/Line/Mode/tube/Status",
+  "data": []
+}
+```
+
+The `data` field contains the full TfL API response. The metadata fields make it clear when the file was fetched and which source endpoint produced it.
+
+The current tests use fake data and do not call the real TfL API.
 
 ---
 
@@ -55,7 +67,7 @@ Run the current test suite with:
 python -m pytest tests/ -v
 ```
 
-The test in `tests/test_fetch_tfl.py` checks that `save_tfl_data()` can write JSON data to a temporary file and read it back successfully.
+The tests in `tests/test_fetch_tfl.py` check local behavior only: saving JSON with metadata and printing readable line statuses from fake TfL-style data.
 
 ---
 
