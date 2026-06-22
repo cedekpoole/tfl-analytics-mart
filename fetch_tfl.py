@@ -22,7 +22,7 @@ def build_output_payload(data):
     return {"utc_fetched_at": utc_fetched_at, "source_url": URL, "data": data}
 
 
-def save_tfl_data(data, output_dir=OUTPUT_DIR):
+def save_tfl_payload(data, output_dir=OUTPUT_DIR):
     # create the output directory folder if it doesn't exist yet
     os.makedirs(output_dir, exist_ok=True)
 
@@ -53,7 +53,7 @@ def print_line_statuses(data):
 def main():
     data = get_tfl_data()
     print_line_statuses(data)
-    output_path = save_tfl_data(data)
+    output_path = save_tfl_payload(data)
     print(f"Saved {len(data)} lines to {output_path}")
 
 

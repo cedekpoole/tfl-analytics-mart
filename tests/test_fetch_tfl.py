@@ -1,6 +1,6 @@
 import json
 
-from fetch_tfl import save_tfl_data, print_line_statuses
+from fetch_tfl import save_tfl_payload, print_line_statuses
 
 # no need to call TfL API - create fake data
 FAKE_DATA = [
@@ -11,9 +11,9 @@ FAKE_DATA = [
 ]
 
 
-def test_save_tfl_data(tmp_path):
+def test_save_tfl_payload(tmp_path):
     # create temp file path
-    saved_file_path = save_tfl_data(FAKE_DATA, output_dir=tmp_path)
+    saved_file_path = save_tfl_payload(FAKE_DATA, output_dir=tmp_path)
 
     # open path and check if the saved data is the same as the fake data
     with open(saved_file_path) as file:
