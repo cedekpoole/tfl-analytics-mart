@@ -51,10 +51,13 @@ def print_line_statuses(data):
 
 
 def main():
-    data = get_tfl_data()
-    print_line_statuses(data)
-    output_path = save_tfl_payload(data)
-    print(f"Saved {len(data)} lines to {output_path}")
+    try:
+        data = get_tfl_data()
+        print_line_statuses(data)
+        output_path = save_tfl_payload(data)
+        print(f"Saved {len(data)} lines to {output_path}")
+    except requests.exceptions.RequestException as error:
+        print(f"Error fetching TfL data: {error}")
 
 
 if __name__ == "__main__":
