@@ -33,8 +33,13 @@ def test_print_line_statuses(capsys):
     assert captured.out == "Waterloo & City : Minor Delays\n"
 
 
-def test_validate_tfl_data():
+def test_validate_tfl_data_empty():
     bad_data = [{"name": "Waterloo & City", "lineStatuses": [{}]}]
 
     with pytest.raises(ValueError):
         validate_tfl_data(bad_data)
+
+
+def test_validate_tfl_data_reject_wrong_shape():
+    with pytest.raises(ValueError):
+        validate_tfl_data([])
