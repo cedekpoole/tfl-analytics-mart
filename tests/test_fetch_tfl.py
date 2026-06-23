@@ -1,6 +1,7 @@
 import json
+import pytest
 
-from fetch_tfl import save_tfl_payload, print_line_statuses
+from fetch_tfl import save_tfl_payload, print_line_statuses, validate_tfl_data
 
 # no need to call TfL API - create fake data
 FAKE_DATA = [
@@ -30,3 +31,8 @@ def test_print_line_statuses(capsys):
     captured = capsys.readouterr()
 
     assert captured.out == "Waterloo & City : Minor Delays\n"
+
+
+def test_validate_tfl_data():
+    with pytest.raises(ValueError):
+        validate_tfl_data([])

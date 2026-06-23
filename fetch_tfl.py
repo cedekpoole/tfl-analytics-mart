@@ -17,6 +17,12 @@ def get_tfl_data():
     return response.json()
 
 
+def validate_tfl_data(data):
+    # if data from response is empty, raise a value error
+    if not data:
+        raise ValueError("The TfL API returned no data")
+
+
 # add metadata to the saved JSON file
 def build_output_payload(data):
     utc_fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
@@ -66,11 +72,14 @@ def main():
 
     try:
         data = get_tfl_data()
+        validate_tfl_data(data)
         print_line_statuses(data)
         output_path = save_tfl_payload(data, output_dir=args.output_dir)
         print(f"Saved {len(data)} lines to {output_path}")
     except requests.exceptions.RequestException as error:
         print(f"Error fetching TfL data: {error}")
+    except ValueError as error:
+        print(f"Invalid data: {error}")
 
 
 if __name__ == "__main__":
