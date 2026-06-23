@@ -22,6 +22,15 @@ def validate_tfl_data(data):
     if not data:
         raise ValueError("The TfL API returned no data")
 
+    # validate the shape of each response line
+    for line in data:
+        if "name" not in line:
+            raise ValueError("TfL line is missing name")
+        if "lineStatuses" not in line or not line["lineStatuses"]:
+            raise ValueError("TfL line missing line status data")
+        if "statusSeverityDescription" not in line["lineStatuses"][0]:
+            raise ValueError("TfL line status is missing description")
+
 
 # add metadata to the saved JSON file
 def build_output_payload(data):

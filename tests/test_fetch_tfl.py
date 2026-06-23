@@ -34,5 +34,7 @@ def test_print_line_statuses(capsys):
 
 
 def test_validate_tfl_data():
+    bad_data = [{"name": "Waterloo & City", "lineStatuses": [{}]}]
+
     with pytest.raises(ValueError):
-        validate_tfl_data([])
+        validate_tfl_data(bad_data)
