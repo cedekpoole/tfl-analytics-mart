@@ -3,11 +3,16 @@ import os
 import requests
 from datetime import datetime, timezone
 import argparse
+from azure.identity import DefaultAzureCredential
+from azure.storage.blob import BlobServiceClient
 
 # the TfL API endpoint for London Underground tube line statuses
 URL = "https://api.tfl.gov.uk/Line/Mode/tube/Status"
 # set the folder path where the file will be saved
 OUTPUT_DIR = "data/raw/tfl"
+STORAGE_ACCOUNT_NAME = "tflanalyticsmartcp"
+CONTAINER_NAME = "raw-tfl"
+ACCOUNT_URL = f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
 
 
 def get_tfl_data():
@@ -58,6 +63,34 @@ def save_tfl_payload(data, output_dir=OUTPUT_DIR):
     return output_path
 
 
+# upload tfl data to azure
+def upload_to_blob(file_path):
+    # use the Azure account currently signed in through "az login"
+    credential = DefaultAzureCredential()
+
+    # connect to storage account
+    blob_service_client = BlobServiceClient(
+        account_url=ACCOUNT_URL,
+        credential=credential,
+    )
+
+    # get only the filename from the full local path
+    # e.g. "data/raw/tfl/example.json" becomes "example.json"
+    blob_name = os.path.basename(file_path)
+
+    # point to the filename inside the raw-tfl container
+    blob_client = blob_service_client.get_blob_client(
+        container=CONTAINER_NAME,
+        blob=blob_name,
+    )
+
+    # open the local file as binary data and upload it (rb = bytes)
+    with open(file_path, "rb") as file:
+        blob_client.upload_blob(file, overwrite=False)
+
+    return blob_name
+
+
 def print_line_statuses(data):
     # always check the shape of the tfl data first
     # function prints status to terminal
@@ -85,6 +118,8 @@ def main():
         print_line_statuses(data)
         output_path = save_tfl_payload(data, output_dir=args.output_dir)
         print(f"Saved {len(data)} lines to {output_path}")
+        blob_name = upload_to_blob(output_path)
+        print(f"Uploaded {blob_name} to Azure Blob Storage")
     except requests.exceptions.RequestException as error:
         print(f"Error fetching TfL data: {error}")
     except ValueError as error:
