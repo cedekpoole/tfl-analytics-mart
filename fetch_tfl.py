@@ -10,6 +10,8 @@ from azure.storage.blob import BlobServiceClient
 URL = "https://api.tfl.gov.uk/Line/Mode/tube/Status"
 # set the folder path where the file will be saved
 OUTPUT_DIR = "data/raw/tfl"
+
+# azure storage info
 STORAGE_ACCOUNT_NAME = "tflanalyticsmartcp"
 CONTAINER_NAME = "raw-tfl"
 ACCOUNT_URL = f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
