@@ -8,7 +8,7 @@ An end-to-end data pipeline built on public TfL data.
 
 ## What it does (right now)
 
-`fetch_tfl.py` calls the [TfL Unified API](https://api.tfl.gov.uk) endpoint for London Underground line statuses. It prints each tube line's current status to the terminal, then saves a timestamped JSON file locally:
+`fetch_tfl.py` calls the [TfL Unified API](https://api.tfl.gov.uk) endpoint for London Underground line statuses. It checks that the API returned line status data, prints each tube line's current status to the terminal, then saves a timestamped JSON file locally:
 
 ```
 data/raw/tfl/tfl_lines_2026-06-20_14-30-00.json
@@ -73,7 +73,7 @@ Run the current test suite with:
 python -m pytest tests/ -v
 ```
 
-The tests in `tests/test_fetch_tfl.py` check local behavior only: saving JSON with metadata and printing readable line statuses from fake TfL-style data.
+The tests in `tests/test_fetch_tfl.py` check local behavior only: saving JSON with metadata, printing readable line statuses, and rejecting an empty API response using fake TfL-style data.
 
 ---
 
