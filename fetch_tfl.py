@@ -42,7 +42,7 @@ def validate_tfl_data(data):
 
 # add metadata to the saved JSON file
 def build_output_payload(data):
-    utc_fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
+    utc_fetched_at = datetime.now(timezone.utc).isoformat()
 
     return {"utc_fetched_at": utc_fetched_at, "source_url": URL, "data": data}
 
