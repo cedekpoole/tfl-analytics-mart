@@ -61,7 +61,8 @@ def save_tfl_payload(data, output_dir=OUTPUT_DIR):
 
     # open the file for writing and save the data as formatted JSON
     with open(output_path, "w") as f:
-        json.dump(payload, f, indent=2)
+        json.dump(payload, f)
+        f.write("\n")
 
     return output_path
 
