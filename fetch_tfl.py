@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import argparse
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
+from azure.core.exceptions import AzureError
 
 # the TfL API endpoint for London Underground tube line statuses
 URL = "https://api.tfl.gov.uk/Line/Mode/tube/Status"
@@ -126,6 +127,8 @@ def main():
         print(f"Error fetching TfL data: {error}")
     except ValueError as error:
         print(f"Invalid data: {error}")
+    except AzureError as error:
+        print(f"Error loading to blob storage: {error}")
 
 
 if __name__ == "__main__":
