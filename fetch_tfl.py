@@ -3,9 +3,12 @@ import os
 import requests
 from datetime import datetime, timezone
 import argparse
+
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 from azure.core.exceptions import AzureError
+from google.cloud import bigquery
+from google.api_core.exceptions import GoogleAPIError
 
 # the TfL API endpoint for London Underground tube line statuses
 URL = "https://api.tfl.gov.uk/Line/Mode/tube/Status"
@@ -16,6 +19,13 @@ OUTPUT_DIR = "data/raw/tfl"
 STORAGE_ACCOUNT_NAME = "tflanalyticsmartcp"
 CONTAINER_NAME = "raw-tfl"
 ACCOUNT_URL = f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
+
+# BigQuery raw table info
+BIGQUERY_PROJECT_ID = "tfl-analytics-mart"
+BIGQUERY_DATASET_ID = "raw_tfl"
+BIGQUERY_TABLE_ID = "line-status-snapshots"
+BIGQUERY_LOCATION = "europe-west2"
+BIGQUERY_TABLE = f"{BIGQUERY_PROJECT_ID}.{BIGQUERY_DATASET_ID}.{BIGQUERY_TABLE_ID}"
 
 
 def get_tfl_data():
@@ -67,7 +77,7 @@ def save_tfl_payload(data, output_dir=OUTPUT_DIR):
     return output_path
 
 
-# upload tfl data to azure
+# upload raw tfl data to azure as backup
 def upload_to_blob(file_path):
     # use the Azure account currently signed in through "az login"
     credential = DefaultAzureCredential()
@@ -93,6 +103,30 @@ def upload_to_blob(file_path):
         blob_client.upload_blob(file, overwrite=False)
 
     return blob_name
+
+
+def load_to_bigquery(file_path):
+    client = bigquery.Client(project=BIGQUERY_PROJECT_ID)
+
+    # append this JSON file to the existing raw table instead of replacing the table
+    job_config = bigquery.LoadJobConfig(
+        source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+        write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+    )
+
+    # open the local file and ask BigQuery to load it into the raw table
+    with open(file_path, "rb") as file:
+        load_job = client.load_table_from_file(
+            file,
+            BIGQUERY_TABLE,
+            job_config=job_config,
+            location=BIGQUERY_LOCATION,
+        )
+
+    # wait until BigQuery has finished loading the file
+    load_job.result()
+
+    return load_job.output_rows
 
 
 def print_line_statuses(data):
@@ -124,12 +158,17 @@ def main():
         print(f"Saved {len(data)} lines to {output_path}")
         blob_name = upload_to_blob(output_path)
         print(f"Uploaded {blob_name} to Azure Blob Storage")
+        loaded_rows = load_to_bigquery(output_path)
+        print(f"Loaded {loaded_rows} row into BigQuery")
+
     except requests.exceptions.RequestException as error:
         print(f"Error fetching TfL data: {error}")
     except ValueError as error:
         print(f"Invalid data: {error}")
     except AzureError as error:
         print(f"Error loading to blob storage: {error}")
+    except GoogleAPIError as error:
+        print(f"Error loading to BigQuery: {error}")
 
 
 if __name__ == "__main__":
