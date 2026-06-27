@@ -3,3 +3,4 @@ pytest
 azure-storage-blob
 azure-identity
 dbt-bigquery
+google-cloud-bigquery
