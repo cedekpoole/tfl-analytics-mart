@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw_tfl
+    database: tfl-analytics-mart
+    schema: raw_tfl
+    tables:
+      - name: line_status_snapshots
+        identifier: line-status-snapshots
+        description: "Raw TfL line status snapshots loaded into BigQuery."
