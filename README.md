@@ -7,8 +7,9 @@ Tube line statuses from the TfL API, validates the response, saves a timestamped
 JSON snapshot locally, uploads the same file to a private Azure Blob Storage
 container and appends the snapshot to a raw BigQuery table.
 
-dbt has been initialised and connected to BigQuery, but TfL transformation
-models have not been built yet. Automated orchestration is still planned.
+dbt has been initialised and connected to BigQuery. The first staging model is
+built and tested: it turns the raw nested JSON snapshots into one row per Tube
+line per API snapshot. Automated orchestration is still planned.
 
 ---
 
@@ -60,6 +61,45 @@ The script does not save, upload, or load a file if the API response is empty
 or missing the required line-status fields.
 
 The current tests use fake data and do not call the real TfL API.
+
+---
+
+## dbt models
+
+The dbt project lives in:
+
+```text
+tfl_analytics/
+```
+
+The raw BigQuery table is defined as a dbt source:
+
+```text
+source('raw_tfl', 'line_status_snapshots')
+```
+
+The first staging model is:
+
+```text
+tfl_analytics/models/staging/tfl/stg_tfl_line_statuses.sql
+```
+
+It creates this BigQuery view:
+
+```text
+tfl-analytics-mart.dbt_cameron.stg_tfl_line_statuses
+```
+
+This model reshapes the raw JSON so each row represents one Tube line in one
+API snapshot, with columns for the fetch timestamp, source URL, line ID, line
+name, and status description.
+
+Run the staging model from inside the dbt project:
+
+```bash
+cd tfl_analytics
+dbt run --select stg_tfl_line_statuses
+```
 
 ---
 
@@ -153,7 +193,7 @@ Loaded 1 row into BigQuery
 
 ## Tests
 
-Run the current test suite with:
+Run the Python test suite with:
 
 ```bash
 python -m pytest -v
@@ -164,12 +204,28 @@ data and check local behavior only: saving JSON with metadata, printing readable
 line statuses, and rejecting invalid TfL-style data. They do not call the TfL
 API, upload files to Azure, or load data into BigQuery.
 
+Run the dbt tests from inside the dbt project:
+
+```bash
+cd tfl_analytics
+dbt test --select stg_tfl_line_statuses
+```
+
+The dbt tests check that key staging columns are not null:
+
+```text
+utc_fetched_at
+line_id
+line_name
+status_description
+```
+
 ---
 
 ## Architecture
 
-The ingestion and raw-loading layers are implemented. dbt setup has started,
-but transformation models are still planned.
+The ingestion, raw-loading, and first dbt staging layers are implemented.
+Downstream marts and automated orchestration are still planned.
 
 ```text
 TfL Unified API
@@ -182,7 +238,10 @@ Python ingestion script        <- built
       +-- BigQuery raw table    <- built
               |
               v
-dbt staging and marts          <- setup started, models planned
+dbt staging model              <- built and tested
+      |
+      v
+dbt marts                      <- planned
       |
       v
 GitHub Actions orchestration   <- planned
@@ -211,5 +270,5 @@ layer. They serve different purposes.
 | Testing        | pytest                  | Done for current local functions  |
 | Raw storage    | Azure Blob Storage      | Done                              |
 | Data warehouse | Google BigQuery         | Done for raw snapshot loading     |
-| Transformation | dbt Core + dbt-bigquery | Setup started; TfL models planned |
+| Transformation | dbt Core + dbt-bigquery | First staging model done          |
 | Orchestration  | GitHub Actions          | Planned                           |
