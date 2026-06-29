@@ -38,3 +38,25 @@ models:
         description: "Boolean flag showing whether the line had a non-Good-Service status."
         data_tests:
           - not_null
+  - name: mart_line_status_counts
+    description: "Snapshot counts by Tube line and status description."
+    columns:
+      - name: line_id
+        description: "TfL line identifier."
+        data_tests:
+          - not_null
+
+      - name: line_name
+        description: "TfL line name."
+        data_tests:
+          - not_null
+
+      - name: status_description
+        description: "Status description observed in the snapshots."
+        data_tests:
+          - not_null
+
+      - name: snapshot_count
+        description: "Number of collected snapshots for this line and status."
+        data_tests:
+          - not_null
