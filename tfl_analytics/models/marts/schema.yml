@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: fct_line_status_snapshots
+    description: "One row per Tube line per TfL API snapshot, with analysis-ready status flags."
+    columns:
+      - name: utc_fetched_at
+        description: "UTC timestamp when the TfL API response was fetched."
+        data_tests:
+          - not_null
+
+      - name: snapshot_date
+        description: "Date of the TfL API snapshot."
+        data_tests:
+          - not_null
+
+      - name: line_id
+        description: "TfL line identifier."
+        data_tests:
+          - not_null
+
+      - name: line_name
+        description: "TfL line name."
+        data_tests:
+          - not_null
+
+      - name: status_description
+        description: "Status description for the line at the time of the snapshot."
+        data_tests:
+          - not_null
+
+      - name: is_good_service
+        description: "Boolean flag showing whether the line had Good Service."
+        data_tests:
+          - not_null
+
+      - name: is_disrupted
+        description: "Boolean flag showing whether the line had a non-Good-Service status."
+        data_tests:
+          - not_null
