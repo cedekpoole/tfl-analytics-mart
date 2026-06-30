@@ -60,3 +60,45 @@ models:
         description: "Number of collected snapshots for this line and status."
         data_tests:
           - not_null
+  - name: mart_daily_line_reliability
+    description: "Daily reliability summary by Tube line, based on collected status snapshots."
+    columns:
+      - name: snapshot_date
+        description: "Date when the TfL API snapshot was collected."
+        data_tests:
+          - not_null
+
+      - name: line_id
+        description: "TfL line identifier."
+        data_tests:
+          - not_null
+
+      - name: line_name
+        description: "TfL line name."
+        data_tests:
+          - not_null
+
+      - name: total_snapshots
+        description: "Number of collected snapshots for this line on this date."
+        data_tests:
+          - not_null
+
+      - name: good_service_snapshots
+        description: "Number of collected snapshots where this line had Good Service."
+        data_tests:
+          - not_null
+
+      - name: disrupted_snapshots
+        description: "Number of collected snapshots where this line did not have Good Service."
+        data_tests:
+          - not_null
+
+      - name: good_service_pct
+        description: "Percentage of collected snapshots where this line had Good Service."
+        data_tests:
+          - not_null
+
+      - name: disrupted_pct
+        description: "Percentage of collected snapshots where this line did not have Good Service."
+        data_tests:
+          - not_null
