@@ -7,9 +7,9 @@ Tube line statuses from the TfL API, validates the response, saves a timestamped
 JSON snapshot locally, uploads the same file to a private Azure Blob Storage
 container and appends the snapshot to a raw BigQuery table.
 
-dbt has been initialised and connected to BigQuery. The first staging model is
-built and tested: it turns the raw nested JSON snapshots into one row per Tube
-line per API snapshot. Automated orchestration is still planned.
+dbt has been initialised and connected to BigQuery. The project now includes a
+tested staging model, a tested fact model, and two tested marts for line status
+counts and daily reliability. Automated orchestration is still planned.
 
 ---
 
@@ -78,27 +78,45 @@ The raw BigQuery table is defined as a dbt source:
 source('raw_tfl', 'line_status_snapshots')
 ```
 
-The first staging model is:
+The current dbt model chain is:
 
 ```text
-tfl_analytics/models/staging/tfl/stg_tfl_line_statuses.sql
+source('raw_tfl', 'line_status_snapshots')
+        |
+        v
+stg_tfl_line_statuses
+        |
+        v
+fct_line_status_snapshots
+        |
+        +-- mart_line_status_counts
+        +-- mart_daily_line_reliability
 ```
 
-It creates this BigQuery view:
+Models are built in BigQuery under:
 
 ```text
-tfl-analytics-mart.dbt_cameron.stg_tfl_line_statuses
+tfl-analytics-mart.dbt_cameron
 ```
 
-This model reshapes the raw JSON so each row represents one Tube line in one
-API snapshot, with columns for the fetch timestamp, source URL, line ID, line
-name, and status description.
+Current models:
 
-Run the staging model from inside the dbt project:
+| Model | Grain | Purpose |
+|---|---|---|
+| `stg_tfl_line_statuses` | One row per Tube line per API snapshot | Reshapes raw nested JSON into clean rows |
+| `fct_line_status_snapshots` | One row per Tube line per API snapshot | Adds analysis-ready fields and status flags |
+| `mart_line_status_counts` | One row per line and status description | Counts collected snapshots by line/status |
+| `mart_daily_line_reliability` | One row per line per day | Calculates daily Good Service/disruption percentages |
+
+Reliability percentages are based on collected snapshots, not exact TfL uptime.
+They become more meaningful once scheduled ingestion collects data several times
+per day.
+
+Run the dbt models from inside the dbt project:
 
 ```bash
 cd tfl_analytics
-dbt run --select stg_tfl_line_statuses
+dbt run
 ```
 
 ---
@@ -208,24 +226,28 @@ Run the dbt tests from inside the dbt project:
 
 ```bash
 cd tfl_analytics
-dbt test --select stg_tfl_line_statuses
+dbt test
 ```
 
-The dbt tests check that key staging columns are not null:
+The dbt tests check that key model columns are not null, including:
 
 ```text
 utc_fetched_at
+snapshot_date
 line_id
 line_name
 status_description
+total_snapshots
+good_service_pct
+disrupted_pct
 ```
 
 ---
 
 ## Architecture
 
-The ingestion, raw-loading, and first dbt staging layers are implemented.
-Downstream marts and automated orchestration are still planned.
+The ingestion, raw-loading, dbt staging, fact, and first mart layers are
+implemented. Automated orchestration is still planned.
 
 ```text
 TfL Unified API
@@ -241,7 +263,10 @@ Python ingestion script        <- built
 dbt staging model              <- built and tested
       |
       v
-dbt marts                      <- planned
+dbt fact model                 <- built and tested
+      |
+      v
+dbt marts                      <- built and tested
       |
       v
 GitHub Actions orchestration   <- planned
@@ -270,5 +295,5 @@ layer. They serve different purposes.
 | Testing        | pytest                  | Done for current local functions  |
 | Raw storage    | Azure Blob Storage      | Done                              |
 | Data warehouse | Google BigQuery         | Done for raw snapshot loading     |
-| Transformation | dbt Core + dbt-bigquery | First staging model done          |
+| Transformation | dbt Core + dbt-bigquery | Staging, fact, and marts done     |
 | Orchestration  | GitHub Actions          | Planned                           |
