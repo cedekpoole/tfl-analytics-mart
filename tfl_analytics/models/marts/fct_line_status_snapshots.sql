@@ -1,3 +1,7 @@
+-- purpose: create fact model for Tube line status observations
+-- grain: one row per tube line per API snapshot
+-- input: stg_tfl_line_statuses
+
 with line_statuses as (
 
     select *
