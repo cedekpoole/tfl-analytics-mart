@@ -121,6 +121,29 @@ dbt run
 
 ---
 
+## Analysis queries
+
+Saved SQL analysis examples live in:
+
+```text
+analysis/
+```
+
+These queries use the dbt-built fact model and marts to answer example
+transport reliability questions. They do not create new warehouse objects.
+
+| Query | Question |
+|---|---|
+| `top_disrupted_lines.sql` | Which Tube lines had the highest disrupted snapshot percentage across the collected period? |
+| `worst_daily_reliability.sql` | Which Tube lines had the lowest daily Good Service percentage? |
+| `latest_line_status.sql` | What is the latest collected status for each Tube line? |
+
+The analysis uses collected snapshots, not exact TfL uptime or disruption
+duration. Results become more meaningful as the pipeline collects more
+snapshots over time.
+
+---
+
 ## Setup
 
 Create and activate a local Python virtual environment:
