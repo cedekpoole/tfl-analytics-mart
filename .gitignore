@@ -1,4 +1,9 @@
 
+# dbt generated files
+logs/
+target/
+dbt_packages/
+
 # Ignore all JSON files downloaded from the TfL API.
 data/raw/tfl/*.json
 
