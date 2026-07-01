@@ -1,3 +1,7 @@
+-- purpose: summarise daily good service and disruption rates for each tube line
+-- grain: one row per tube line per snapshot date
+-- input: fct_line_status_snapshots
+
 with line_status_snapshots as (
 
     select *
