@@ -1,3 +1,7 @@
+-- purpose: count how often each tube line appeared in each status across the entire period
+-- grain: one row per tube line and status description
+-- input: fct_line_status_snapshots
+
 with line_status_snapshots as (
 
     select *
