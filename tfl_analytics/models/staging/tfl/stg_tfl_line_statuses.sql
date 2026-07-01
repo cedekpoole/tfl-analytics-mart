@@ -1,3 +1,7 @@
+-- purpose: reshape raw TfL JSON snapshot into clean line status rows
+-- grain: one row per tube line per API snapshot
+-- input: raw BigQuery source table (raw_tfl.line-status-snapshots)
+
 with source as (
 
     select
